@@ -1,59 +1,38 @@
 const fs = require('fs');
 const express = require('express');
+const path = require('path');
 
 const port = 3000;
 const app = express();
+const PATH = path.join(__dirname, '/data.json');
 
-const users = [
-  { id: 1, name: "John Doe" },
-  { id: 2, name: "Bob Smith" },
-  { id: 3, name: "Alber Johnson" }
-]
+app.use(express.json());
 
-/* app.get("/users", (req, res) => {
-  console.log(req.query)
-  const {name} = req.query;
-  
-  
-  const result = users.filter((user) => user.name.toLowerCase().includes(name.toLowerCase()));
-  res.json(result);
-  }) */
-app.use(express.json())
- 
-/* app.post('/users', (req, res) => {
-  const newUser = req.body;
-  console.log(req.body);
-  
-  newUser.id = users.length + 1;
-  users.push(newUser);
-  res.status(201).json(newUser);
-}) */
+app.post('/todos', (req, res) => {
+  const data = fs.readFileSync(PATH, 'utf8');
+  const todos = data ? JSON.parse(data) : [];
+  const newTodo = req.body;
+  newTodo.id = todos.length + 1;
+  newTodo.completed = false;
+  todos.push(newTodo);
 
+  fs.writeFileSync(PATH, JSON.stringify(todos, null, 2), 'utf8');
+  res.status(201).json(newTodo);
+});
 
-/* app.put('/users/:id', (req, res) => {
-  const { id } = req.params;
-  const updatedUser = req.body;
+app.delete('/todos/:id', (req, res) => {
+  const data = fs.readFileSync(PATH, 'utf8');
+  const todos = data ? JSON.parse(data) : [];
 
-  const userIndex = users.findIndex(user => user.id === parseInt(id));
+  const todoId = parseInt(req.params.id);
+  const todoIndex = todos.findIndex(todo => todo.id === todoId);
 
-  if (userIndex !== -1) {
-    users[userIndex] = {...users[userIndex], ...updatedUser}
-    res.json(users);
+  if(todoIndex !== -1) {
+    todos.splice(todoIndex, 1);
+    fs.writeFileSync(PATH, JSON.stringify(todos, null, 2), 'utf8');
+    res.json({message: `Todo successfully deleted`});
   } else {
-    res.status(404).json({message: 'User not found'})
-  }
-}) */
-
-app.delete('/users/:id', (req, res) => {
-  const { id } = req.params;
-
-  const userIndex = users.findIndex(user => user.id === parseInt(id));
-
-  if(userIndex !== -1) {
-    users.splice(userIndex, 1);
-    res.json(users)
-  } else {
-    res.status(404).json({message: 'User not found'})
+    res.status(404).json({ message: 'Todo not found! :(' });
   }
 })
 
