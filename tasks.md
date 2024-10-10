@@ -16,5 +16,7 @@ Display the list of todos in the console.
 - Delete: Send a DELETE request to the server to delete a todo.
 
 ## 4. Handle errors: Implement error handling for both the client and server sides.
+
 ## 5. JSON data: Ensure that all data is formatted correctly in JSON.
+
 ## 6. User interface: While the client-side interface is simple, consider adding more features like filtering, sorting, and marking todos as completed.
